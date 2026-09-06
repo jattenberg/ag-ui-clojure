@@ -14,7 +14,7 @@ Which surface is the interoperability target for a new implementation in 2026?
 
 ### Possible interpretations
 
-A. Implement only the 0.x conceptual set (what many production integrations still emit).  
+A. Implement only the 0.x conceptual set (what many production integrations still emit).
 B. Implement the draft schema (what first-party SDK type docs currently list).
 
 ### Current implementation
@@ -43,7 +43,7 @@ Is a producer that sends Unix seconds conformant?
 
 ### Possible interpretations
 
-A. Any integer is valid.  
+A. Any integer is valid.
 B. Milliseconds are required in practice.
 
 ### Current implementation
@@ -72,7 +72,7 @@ Should a conformance fixture pack reject `NOT_A_REAL_EVENT`?
 
 ### Possible interpretations
 
-A. Runtime consumer: drop with warning.  
+A. Runtime consumer: drop with warning.
 B. Producer/authoring: invalid.
 
 ### Current implementation
@@ -101,7 +101,7 @@ Is `START` + `END` with no `CONTENT` a valid empty message?
 
 ### Possible interpretations
 
-A. Yes (zero or more).  
+A. Yes (zero or more).
 B. Some UIs assume at least one delta.
 
 ### Current implementation
@@ -130,7 +130,7 @@ Does `/draft/title` address a Clojure `:draft` key?
 
 ### Possible interpretations
 
-A. Pointers always address JSON string keys.  
+A. Pointers always address JSON string keys.
 B. SDKs may rewrite pointers.
 
 ### Current implementation
@@ -159,7 +159,7 @@ Must producers emit `outcome`?
 
 ### Possible interpretations
 
-A. Omit for 0.x compatibility.  
+A. Omit for 0.x compatibility.
 B. Always send `{type:"success"}`.
 
 ### Current implementation
@@ -188,7 +188,7 @@ Is protobuf required of every server?
 
 ### Possible interpretations
 
-A. SSE-only servers are conformant.  
+A. SSE-only servers are conformant.
 B. Servers SHOULD negotiate protobuf when advertised.
 
 ### Current implementation

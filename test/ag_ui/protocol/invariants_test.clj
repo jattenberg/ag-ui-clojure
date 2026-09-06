@@ -45,3 +45,44 @@
                    {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])]
     (is (:ok expanded))
     (is (:ok (inv/check-stream (:events expanded))))))
+
+(deftest nested-run-while-active
+  (is (= :nested-run
+         (get-in (inv/check-stream
+                  [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+                   {:type "RUN_STARTED" :thread-id "t" :run-id "r2"}])
+                 [:violation :code]))))
+
+(deftest after-close-rejects-content
+  (is (= :after-close
+         (get-in (inv/check-stream
+                  [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+                   {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}
+                   {:type "TEXT_MESSAGE_START" :message-id "m"}])
+                 [:violation :code]))))
+
+(deftest run-error-then-new-run
+  (is (:ok (inv/check-stream
+            [{:type "RUN_STARTED" :thread-id "t" :run-id "r1"}
+             {:type "RUN_ERROR" :message "x"}
+             {:type "RUN_STARTED" :thread-id "t" :run-id "r2"}
+             {:type "RUN_FINISHED" :thread-id "t" :run-id "r2"}]))))
+
+(deftest run-id-mismatch
+  (is (= :run-id-mismatch
+         (get-in (inv/check-stream
+                  [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+                   {:type "RUN_FINISHED" :thread-id "t" :run-id "other"}])
+                 [:violation :code]))))
+
+(deftest stream-may-begin-with-run-error
+  (is (:ok (inv/check-stream [{:type "RUN_ERROR" :message "nope"}]))))
+
+(deftest unknown-subagent-attribution
+  (is (= :unknown-subagent
+         (get-in (inv/check-stream
+                  [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+                   {:type "SUBAGENT_STARTED" :subagent-run-id "sa" :name "n"}
+                   {:type "TEXT_MESSAGE_START" :message-id "m" :role "assistant"
+                    :subagent-run-id "other"}])
+                 [:violation :code]))))

@@ -9,3 +9,18 @@
 
 (deftest schema-rejects-unknown-type
   (is (not (:ok (schema/validate-json "{\"type\":\"NOT_A_REAL_EVENT\"}")))))
+
+(deftest schema-accepts-activity-and-reasoning
+  (is (:ok (schema/validate-json
+            (json/encode-json {:type "ACTIVITY_SNAPSHOT"
+                               :message-id "a"
+                               :activity-type "p"
+                               :content {"pct" 0}}))))
+  (is (:ok (schema/validate-json
+            (json/encode-json {:type "REASONING_MESSAGE_START"
+                               :message-id "m"
+                               :role "reasoning"})))))
+
+(deftest schema-rejects-extra-property
+  (is (not (:ok (schema/validate-json
+                 "{\"type\":\"RUN_STARTED\",\"threadId\":\"t\",\"runId\":\"r\",\"nope\":1}")))))

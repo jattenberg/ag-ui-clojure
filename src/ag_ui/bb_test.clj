@@ -10,6 +10,11 @@
     ag-ui.serialization.json-test
     ag-ui.conformance.fixtures-test
     ag-ui.protocol.compat-test
+    ag-ui.protocol.chunks-test
+    ag-ui.protocol.resume-test
+    ag-ui.stream-test
+    ag-ui.serialization.fields-test
+    ag-ui.conformance.cli-test
     ag-ui.server.echo-test
     ag-ui.server.http-test])
 

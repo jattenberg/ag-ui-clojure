@@ -64,3 +64,22 @@ JVM uses `clojure.data.json`; Babashka uses built-in Cheshire for JSON (data.jso
 | `test.check` property tests | yes | no |
 
 Entry: [`bb.edn`](../bb.edn). Property tests live in `*_properties_test.clj` namespaces so `bb test` never loads `test.check`.
+
+## Conformance profiles
+
+`ag-ui.conformance.core/check-valid-stream` takes `:producer` or `:consumer`.
+
+- Producer: translate `THINKING_*`, authoring validation, pinned JSON Schema (JVM), chunk expand, lifecycle, reduce, JSON round-trip.
+- Consumer: same pipeline with runtime validation (drop unknown types, strip unknown fields). Schema is skipped.
+
+## Echo agent
+
+`ag-ui.server.echo/events-for` is a pure function of `RunAgentInput`. Keywords in the last user message select a protocol family (`tool`, `state`, `interrupt`, `error`, `custom`, `activity`, `subagent`, `reasoning`, `encrypted`, `snapshot`, `chunk`). A non-empty `:resume` vector emits a success run.
+
+## HTTP
+
+- `POST /` or `POST /agent` with `Accept: text/event-stream` → `200` SSE.
+- Missing Accept → `406`.
+- Malformed `RunAgentInput` → `400` and no stream.
+- `GET /health` → `ok`.
+

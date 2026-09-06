@@ -53,6 +53,33 @@
   (is (= {:ok true :doc {"a" [1 2]}}
          (patch/apply-patch {"a" [1]} [{:op "add" :path "/a/-" :value 2}]))))
 
+(deftest json-patch-remove-and-test
+  (is (= {:ok true :doc {"b" 2}}
+         (patch/apply-patch {"a" 1 "b" 2} [{:op "remove" :path "/a"}])))
+  (is (not (:ok (patch/apply-patch {"a" 1} [{:op "test" :path "/a" :value 2}]))))
+  (is (:ok (patch/apply-patch {"a" 1} [{:op "test" :path "/a" :value 1}]))))
+
+(deftest json-patch-copy-move
+  (is (= {"a" 1 "b" 1}
+         (:doc (patch/apply-patch {"a" 1} [{:op "copy" :from "/a" :path "/b"}]))))
+  (is (= {"b" 1}
+         (:doc (patch/apply-patch {"a" 1} [{:op "move" :from "/a" :path "/b"}])))))
+
+(deftest reduce-error-status
+  (let [s (reduce/reduce-events
+           [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+            {:type "RUN_ERROR" :message "boom" :code "x"}])]
+    (is (= :error (:status s)))
+    (is (= "boom" (get-in s [:error :message])))))
+
+(deftest reduce-unknown-type-is-warning
+  (let [s (reduce/reduce-events
+           [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+            {:type "FUTURE_EVENT"}
+            {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])]
+    (is (= :finished (:status s)))
+    (is (seq (:warnings s)))))
+
 (deftest messages-snapshot-keeps-activity
   (let [s (reduce/reduce-events
            [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}

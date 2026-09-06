@@ -29,3 +29,10 @@
            (= events round)
            (= (apply str (keep :delta (filter #(= "TEXT_MESSAGE_CONTENT" (:type %)) events)))
               (get-in state [:messages-by-id "m" :content]))))))
+
+(defspec generated-custom-events-round-trip 30
+  (prop/for-all [name gen/string-alphanumeric
+                 n gen/small-integer]
+    (let [e {:type "CUSTOM" :name name :value n}
+          decoded (json/decode-json-strict (json/encode-json e))]
+      (= e decoded))))

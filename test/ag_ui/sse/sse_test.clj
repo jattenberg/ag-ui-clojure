@@ -32,3 +32,18 @@
   (let [decoded (sse/decode-stream "data: {not json}\n\n")]
     (is (not (:ok (first decoded))))
     (is (= :malformed-json (:kind (first decoded))))))
+
+(deftest multiline-data-joins
+  (let [body "data: {\"type\":\"CUSTOM\",\"name\":\"n\",\ndata: \"value\":1}\n\n"
+        decoded (sse/decode-stream body)]
+    (is (:ok (first decoded)))
+    (is (= "CUSTOM" (get-in decoded [0 :event :type])))))
+
+(deftest events-only-throws
+  (is (thrown? Exception (sse/events-only (sse/decode-stream "data: {not json}\n\n")))))
+
+(deftest dropped-unknown-type
+  (let [body (sse/encode-event {:type "FUTURE_EVENT" :x 1})
+        decoded (sse/decode-stream body)]
+    (is (:dropped? (first decoded)))
+    (is (= [] (sse/events-only decoded)))))

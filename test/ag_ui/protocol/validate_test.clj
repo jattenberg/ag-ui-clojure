@@ -33,3 +33,27 @@
 (deftest run-input
   (is (:ok (v/validate-run-input {:thread-id "t" :run-id "r" :messages []})))
   (is (not (:ok (v/validate-run-input {:thread-id "t" :messages []})))))
+
+(deftest extra-property-authoring-vs-runtime
+  (let [e {:type "RUN_STARTED" :thread-id "t" :run-id "r" :not-in-schema 1}]
+    (is (not (:ok (v/validate-event e {:mode :authoring}))))
+    (let [rt (v/validate-event e {:mode :runtime})]
+      (is (:ok rt))
+      (is (not (contains? (:event rt) :not-in-schema)))
+      (is (seq (:warnings rt))))))
+
+(deftest encrypted-subtype-enum
+  (is (:ok (v/validate-event {:type "REASONING_ENCRYPTED_VALUE"
+                              :subtype "message"
+                              :entity-id "m"
+                              :encrypted-value "x"})))
+  (is (not (:ok (v/validate-event {:type "REASONING_ENCRYPTED_VALUE"
+                                   :subtype "nope"
+                                   :entity-id "m"
+                                   :encrypted-value "x"})))))
+
+(deftest activity-requires-object-content
+  (is (not (:ok (v/validate-event {:type "ACTIVITY_SNAPSHOT"
+                                   :message-id "a"
+                                   :activity-type "p"
+                                   :content "no"})))))
