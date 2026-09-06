@@ -9,6 +9,8 @@ These files are **invalid** AG-UI. Conformance tools must reject them.
 | `invalid-field-type.json` | `messageId` is a number | schema: `messageId` is string; processing model: malformed known value is fatal |
 | `invalid-lifecycle.jsonl` | `RUN_FINISHED` while a text message is still open | streaming pattern: every opened item must close before the run finishes |
 | `tool-end-without-start.jsonl` | `TOOL_CALL_END` for an id that is not open | streaming pattern |
-| `malformed-json.json` | not JSON | transport/decode failure, not a protocol event |
+| `subagent-finish-without-start.jsonl` | `SUBAGENT_FINISHED` without a matching start | subagent lifecycle |
+| `reasoning-end-without-start.jsonl` | `REASONING_END` without `REASONING_START` | reasoning span |
+| `partial-resume.jsonl` | next run's `resume` omits an open interrupt | interrupt–resume coverage |
 
 Runtime consumers **drop** unknown *future* event types (processing model). Authoring validation and this fixture suite treat unknown types as producer errors.

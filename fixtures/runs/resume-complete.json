@@ -1,0 +1,15 @@
+{
+  "expectResumeCheck": true,
+  "expectOk": true,
+  "openInterrupts": [
+    {"id": "int_1", "reason": "confirmation"}
+  ],
+  "input": {
+    "threadId": "t",
+    "runId": "r2",
+    "messages": [],
+    "resume": [
+      {"interruptId": "int_1", "status": "resolved", "payload": {"approved": true}}
+    ]
+  }
+}

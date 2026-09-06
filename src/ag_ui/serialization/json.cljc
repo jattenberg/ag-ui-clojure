@@ -20,7 +20,7 @@
      :clj (data-json/read-str s)))
 
 (def opaque-keys
-  #{:snapshot :raw-event :value :event :payload :state
+  #{:snapshot :raw-event :value :event :payload :state :content
     :forwarded-props :result :metadata :parameters :response-schema})
 
 (defn stringify-keys

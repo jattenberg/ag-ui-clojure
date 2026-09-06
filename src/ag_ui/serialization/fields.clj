@@ -41,6 +41,8 @@
    "subtype" :subtype
    "entityId" :entity-id
    "subagentRunId" :subagent-run-id
+   "parentSubagentRunId" :parent-subagent-run-id
+   "parentToolCallId" :parent-tool-call-id
    "state" :state
    "tools" :tools
    "context" :context

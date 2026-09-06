@@ -47,6 +47,8 @@
    :subtype :string
    :entity-id :string
    :subagent-run-id :string
+   :parent-subagent-run-id :string
+   :parent-tool-call-id :string
    :state :any
    :tools :array
    :context :array
@@ -193,7 +195,8 @@
 
    "SUBAGENT_STARTED"
    {:required #{:type :subagent-run-id :name}
-    :optional base-optional}
+    :optional (opt base-optional #{:description :parent-subagent-run-id
+                                   :parent-tool-call-id :parent-message-id})}
 
    "SUBAGENT_FINISHED"
    {:required #{:type :subagent-run-id}

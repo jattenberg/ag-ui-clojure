@@ -83,7 +83,7 @@ bb conformance --endpoint http://127.0.0.1:8000/
 bb test
 ```
 
-See [`docs/conformance.md`](docs/conformance.md) and [`fixtures/`](fixtures/).
+See [`docs/conformance.md`](docs/conformance.md), [`fixtures/manifest.json`](fixtures/manifest.json), and [`fixtures/`](fixtures/).
 
 ## Interoperability
 
@@ -96,10 +96,8 @@ See [`docs/architecture.md`](docs/architecture.md). Protocol, JSON, SSE, and HTT
 ## Known limitations
 
 - HTTP+SSE only (no protobuf binding).
-- Dual runtime: JVM Clojure is the full implementation (property tests, preferred long-running server). Babashka runs the same protocol namespaces for conformance, unit tests, client, and a probe server.
-- Subagent attribution rules are not fully enforced beyond storing `subagent-run-id`.
-- 0.x `THINKING_*` compatibility translation is documented, not implemented.
-- JSON Schema is projected into Clojure tables; re-validate against `spec/draft/schema.json` before treating this as a schema oracle.
+- Dual runtime: JVM Clojure is the full implementation (property tests, JSON Schema, preferred long-running server). Babashka runs the same protocol namespaces for conformance, unit tests, client, and a probe server.
+- Nested subagent `parentSubagentRunId` rules are not fully enforced.
 - Live CopilotKit Dojo tests are manual.
 
 ## Spec ambiguities

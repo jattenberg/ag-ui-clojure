@@ -9,3 +9,7 @@
 (deftest malformed-fixtures-fail
   (doseq [r (core/run-malformed-fixtures)]
     (is (:ok r) (str "should reject " (:name r) " " (pr-str r)))))
+
+(deftest resume-fixtures
+  (doseq [r (core/run-resume-fixtures)]
+    (is (:ok r) (pr-str r))))

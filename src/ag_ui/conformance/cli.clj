@@ -34,29 +34,40 @@
   (println)
   (let [valid (core/run-valid-fixtures)
         malformed (core/run-malformed-fixtures)
-        endpoint (first (filter #(or (= "--endpoint" %) (str/starts-with? % "http")) args))
-        url (cond
-              (= "--endpoint" (first args)) (second args)
-              (and endpoint (not= "--endpoint" endpoint)) endpoint
-              :else nil)
-        live (when url
+        resumes (core/run-resume-fixtures)
+        endpoint (or (System/getenv "AG_UI_EXTERNAL_URL")
+                     (let [hit (first (filter #(or (= "--endpoint" %) (str/starts-with? % "http")) args))]
+                       (cond
+                         (= "--endpoint" (first args)) (second args)
+                         (and hit (not= "--endpoint" hit)) hit
+                         :else nil)))
+        live (when endpoint
                (println)
-               (println "Live endpoint" url)
-               (core/check-endpoint url))
+               (println "Live endpoint" endpoint)
+               (core/check-endpoint endpoint))
         valid-fail (count (remove :ok valid))
         mal-fail (count (remove :ok malformed))
+        resume-fail (count (remove :ok resumes))
         live-fail (if (and live (not (:ok live))) 1 0)
-        n (+ valid-fail mal-fail live-fail)]
+        n (+ valid-fail mal-fail resume-fail live-fail)]
     (println "Valid streams")
     (print-valid valid)
     (println)
     (println "Malformed fixtures (must reject)")
     (print-malformed malformed)
+    (println)
+    (println "Resume coverage")
+    (doseq [r resumes]
+      (if (:skipped r)
+        (println "· skip" (:name r))
+        (if (:ok r)
+          (println (pass (:name r)))
+          (println (fail (:name r))))))
     (when live
       (println)
       (if (:ok live)
-        (println (pass (str "live " url " (" (count (:events live)) " events)")))
-        (println (fail (str "live " url " " (pr-str (select-keys live [:kind :status :error])))))))
+        (println (pass (str "live " endpoint " (" (count (:events live)) " events)")))
+        (println (fail (str "live " endpoint " " (pr-str (select-keys live [:kind :status :error])))))))
     (println)
     (if (zero? n)
       (println "All checks passed")

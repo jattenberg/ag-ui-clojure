@@ -1,0 +1,7 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"REASONING_START","messageId":"span_1"}
+{"type":"REASONING_MESSAGE_START","messageId":"rm_1","role":"reasoning"}
+{"type":"REASONING_MESSAGE_CONTENT","messageId":"rm_1","delta":"considering options"}
+{"type":"REASONING_MESSAGE_END","messageId":"rm_1"}
+{"type":"REASONING_END","messageId":"span_1"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

@@ -1,0 +1,3 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"SUBAGENT_FINISHED","subagentRunId":"never-opened"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

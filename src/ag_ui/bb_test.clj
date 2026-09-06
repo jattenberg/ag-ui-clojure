@@ -9,6 +9,7 @@
     ag-ui.sse.sse-test
     ag-ui.serialization.json-test
     ag-ui.conformance.fixtures-test
+    ag-ui.protocol.compat-test
     ag-ui.server.http-test])
 
 (defn run

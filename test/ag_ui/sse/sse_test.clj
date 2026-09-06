@@ -20,6 +20,14 @@
     (is (= 1 (count decoded)))
     (is (= "RUN_ERROR" (get-in decoded [0 :event :type])))))
 
+(deftest golden-python-sse
+  (let [body (slurp "fixtures/interop/python-ag-ui-protocol.sse")
+        decoded (sse/decode-stream body)]
+    (is (every? :ok decoded))
+    (is (= ["RUN_STARTED" "TEXT_MESSAGE_START" "TEXT_MESSAGE_CONTENT"
+            "TEXT_MESSAGE_CONTENT" "TEXT_MESSAGE_END" "RUN_FINISHED"]
+           (mapv (comp :type :event) decoded)))))
+
 (deftest malformed-data
   (let [decoded (sse/decode-stream "data: {not json}\n\n")]
     (is (not (:ok (first decoded))))

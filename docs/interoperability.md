@@ -49,13 +49,21 @@ clojure -M:client http://127.0.0.1:8000/ Hello
 bb client http://127.0.0.1:8000/ Hello
 ```
 
-Against a Python AG-UI server (upstream quickstart / `ag-ui-protocol` encoder):
+Against the official Python encoder as an HTTP server:
 
 ```bash
-# example shape from https://docs.ag-ui.com/quickstart/server.md
-# poetry run dev   # in an ag-ui integration server
-clojure -M:client http://127.0.0.1:8000/ Hello
+python3 -m venv .venv
+.venv/bin/pip install ag-ui-protocol
+.venv/bin/python interop/python/echo_server.py 18090
+# another terminal:
+clojure -M:client http://127.0.0.1:18090/ Hello
+bb client http://127.0.0.1:18090/ Hello
+clojure -M:conformance --endpoint http://127.0.0.1:18090/
 ```
+
+Recorded SSE from that encoder (no process required):
+
+`fixtures/interop/python-ag-ui-protocol.sse`
 
 Python encoder → Clojure decoder (no HTTP):
 

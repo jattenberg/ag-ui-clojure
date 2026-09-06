@@ -3,6 +3,7 @@
   (:require [ag-ui.protocol.validate :as validate]
             [ag-ui.protocol.invariants :as inv]
             [ag-ui.protocol.chunks :as chunks]
+            [ag-ui.protocol.compat :as compat]
             [ag-ui.state.json-patch :as patch]
             [ag-ui.serialization.json :as json]))
 
@@ -204,11 +205,13 @@
               (apply-messages-snapshot state (:messages event))
 
               "ACTIVITY_SNAPSHOT"
-              (assoc-in state [:activities (:message-id event)]
-                        {:id (:message-id event)
+              (let [msg {:id (:message-id event)
                          :role "activity"
                          :activity-type (:activity-type event)
-                         :content (json/stringify-keys (:content event))})
+                         :content (json/stringify-keys (:content event))}]
+                (-> state
+                    (assoc-in [:activities (:message-id event)] msg)
+                    (upsert-message msg)))
 
               "ACTIVITY_DELTA"
               (let [id (:message-id event)
@@ -216,8 +219,51 @@
                     current (json/stringify-keys current)
                     {:keys [ok doc reason]} (patch/apply-patch current (:patch event))]
                 (if ok
-                  (assoc-in state [:activities id :content] doc)
+                  (let [msg (assoc (or (get-in state [:activities id])
+                                       {:id id :role "activity" :activity-type (:activity-type event)})
+                                   :content doc)]
+                    (-> state
+                        (assoc-in [:activities id] msg)
+                        (upsert-message msg)))
                   (append-warning state {:code :patch-failed :message reason :event event})))
+
+              "REASONING_START"
+              (update state :open-reasoning-spans (fnil conj #{}) (:message-id event))
+
+              "REASONING_END"
+              (update state :open-reasoning-spans (fnil disj #{}) (:message-id event))
+
+              "REASONING_MESSAGE_START"
+              (let [msg {:id (:message-id event)
+                         :role "reasoning"
+                         :content ""
+                         :metadata (:metadata event)}]
+                (-> state
+                    (assoc-in [:open-reasoning-messages (:message-id event)] msg)
+                    (upsert-message msg)))
+
+              "REASONING_MESSAGE_CONTENT"
+              (let [id (:message-id event)
+                    open (get-in state [:open-reasoning-messages id])
+                    msg (update open :content str (:delta event))]
+                (-> state
+                    (assoc-in [:open-reasoning-messages id] msg)
+                    (upsert-message msg)))
+
+              "REASONING_MESSAGE_END"
+              (update state :open-reasoning-messages dissoc (:message-id event))
+
+              "SUBAGENT_STARTED"
+              (assoc-in state [:subagents (:subagent-run-id event)]
+                        {:id (:subagent-run-id event)
+                         :name (:name event)
+                         :status :active})
+
+              "SUBAGENT_FINISHED"
+              (assoc-in state [:subagents (:subagent-run-id event) :status] :finished)
+
+              "SUBAGENT_ERROR"
+              (assoc-in state [:subagents (:subagent-run-id event) :status] :error)
 
               "CUSTOM"
               (update state :custom conj event)
@@ -238,7 +284,11 @@
   "Expand chunks, then fold events. run-input seeds messages/state."
   ([events] (reduce-events events nil))
   ([events run-input]
-   (let [expanded (chunks/expand-chunks events)]
+   (let [translated (compat/translate-stream events)
+         expanded (chunks/expand-chunks (:events translated))]
      (if-not (:ok expanded)
        {:status :protocol-error :violation (:error expanded)}
-       (reduce reduce-event (initial-state run-input) (:events expanded))))))
+       (let [state (reduce reduce-event (initial-state run-input) (:events expanded))]
+         (if (seq (:warnings translated))
+           (update state :warnings (fnil into []) (:warnings translated))
+           state))))))

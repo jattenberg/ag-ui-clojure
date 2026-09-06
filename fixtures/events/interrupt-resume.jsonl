@@ -1,0 +1,4 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r1"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r1","outcome":{"type":"interrupt","interrupts":[{"id":"int_1","reason":"confirmation","message":"Proceed?"}]}}
+{"type":"RUN_STARTED","threadId":"t","runId":"r2","input":{"threadId":"t","runId":"r2","messages":[],"resume":[{"interruptId":"int_1","status":"resolved","payload":{"approved":true}}]}}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r2"}

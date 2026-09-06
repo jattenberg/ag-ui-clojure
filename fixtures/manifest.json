@@ -1,0 +1,148 @@
+{
+  "protocol": "AG-UI",
+  "schema": "spec/draft/schema.json",
+  "schemaUrl": "https://ag-ui.com/spec/draft/schema.json",
+  "wire": "JSON objects, camelCase field names, one event per JSONL line",
+  "notes": "Language-neutral. Consume these files without Clojure. Valid streams must pass structural schema + lifecycle. Malformed streams must be rejected by a producer/authoring validator.",
+  "streams": [
+    {
+      "id": "basic-run",
+      "status": "valid",
+      "path": "fixtures/events/basic-run.jsonl",
+      "invariants": ["run-lifecycle", "text-stream"]
+    },
+    {
+      "id": "text-stream",
+      "status": "valid",
+      "path": "fixtures/events/text-stream.jsonl",
+      "invariants": ["text-stream"]
+    },
+    {
+      "id": "text-chunks",
+      "status": "valid",
+      "path": "fixtures/events/text-chunks.jsonl",
+      "invariants": ["chunk-expansion", "text-stream"]
+    },
+    {
+      "id": "tool-call",
+      "status": "valid",
+      "path": "fixtures/events/tool-call.jsonl",
+      "invariants": ["tool-call-lifecycle"]
+    },
+    {
+      "id": "state-update",
+      "status": "valid",
+      "path": "fixtures/events/state-update.jsonl",
+      "invariants": ["state-snapshot-delta"]
+    },
+    {
+      "id": "interrupt",
+      "status": "valid",
+      "path": "fixtures/events/interrupt.jsonl",
+      "invariants": ["interrupt-outcome"]
+    },
+    {
+      "id": "interrupt-resume",
+      "status": "valid",
+      "path": "fixtures/events/interrupt-resume.jsonl",
+      "invariants": ["interrupt-outcome", "resume-coverage"]
+    },
+    {
+      "id": "error",
+      "status": "valid",
+      "path": "fixtures/events/error.jsonl",
+      "invariants": ["run-error"]
+    },
+    {
+      "id": "custom-event",
+      "status": "valid",
+      "path": "fixtures/events/custom-event.jsonl",
+      "invariants": ["passthrough"]
+    },
+    {
+      "id": "steps",
+      "status": "valid",
+      "path": "fixtures/events/steps.jsonl",
+      "invariants": ["steps-overlap"]
+    },
+    {
+      "id": "reasoning",
+      "status": "valid",
+      "path": "fixtures/events/reasoning.jsonl",
+      "invariants": ["reasoning-span", "reasoning-message"]
+    },
+    {
+      "id": "thinking-compat",
+      "status": "valid",
+      "path": "fixtures/events/thinking-compat.jsonl",
+      "invariants": ["thinking-translation"],
+      "notes": "0.x THINKING_* must be translated before enforcement"
+    },
+    {
+      "id": "subagent",
+      "status": "valid",
+      "path": "fixtures/events/subagent.jsonl",
+      "invariants": ["subagent-lifecycle"]
+    },
+    {
+      "id": "activity",
+      "status": "valid",
+      "path": "fixtures/events/activity.jsonl",
+      "invariants": ["activity-snapshot-delta"]
+    },
+    {
+      "id": "missing-required-field",
+      "status": "malformed",
+      "path": "fixtures/malformed/missing-required-field.json",
+      "why": "TEXT_MESSAGE_CONTENT without messageId"
+    },
+    {
+      "id": "unknown-event-type",
+      "status": "malformed",
+      "path": "fixtures/malformed/unknown-event-type.json",
+      "why": "type is not an EventType (authoring/producer)"
+    },
+    {
+      "id": "invalid-field-type",
+      "status": "malformed",
+      "path": "fixtures/malformed/invalid-field-type.json",
+      "why": "messageId is a number"
+    },
+    {
+      "id": "invalid-lifecycle",
+      "status": "malformed",
+      "path": "fixtures/malformed/invalid-lifecycle.jsonl",
+      "why": "RUN_FINISHED while a text message is still open"
+    },
+    {
+      "id": "tool-end-without-start",
+      "status": "malformed",
+      "path": "fixtures/malformed/tool-end-without-start.jsonl",
+      "why": "TOOL_CALL_END for an id that is not open"
+    },
+    {
+      "id": "malformed-json",
+      "status": "malformed",
+      "path": "fixtures/malformed/malformed-json.json",
+      "why": "not JSON"
+    },
+    {
+      "id": "subagent-finish-without-start",
+      "status": "malformed",
+      "path": "fixtures/malformed/subagent-finish-without-start.jsonl",
+      "why": "SUBAGENT_FINISHED without SUBAGENT_STARTED"
+    },
+    {
+      "id": "reasoning-end-without-start",
+      "status": "malformed",
+      "path": "fixtures/malformed/reasoning-end-without-start.jsonl",
+      "why": "REASONING_END without REASONING_START"
+    },
+    {
+      "id": "partial-resume",
+      "status": "malformed",
+      "path": "fixtures/malformed/partial-resume.jsonl",
+      "why": "next RUN_STARTED.input.resume does not cover every interrupt"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+data: {"type":"RUN_STARTED","threadId":"thread_basic","runId":"run_basic"}
+
+data: {"type":"TEXT_MESSAGE_START","messageId":"msg_1","role":"assistant"}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"msg_1","delta":"Hello"}
+
+data: {"type":"TEXT_MESSAGE_CONTENT","messageId":"msg_1","delta":", world."}
+
+data: {"type":"TEXT_MESSAGE_END","messageId":"msg_1"}
+
+data: {"type":"RUN_FINISHED","threadId":"thread_basic","runId":"run_basic"}
+

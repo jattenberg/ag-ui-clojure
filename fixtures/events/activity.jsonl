@@ -1,0 +1,4 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"ACTIVITY_SNAPSHOT","messageId":"act_1","activityType":"progress","content":{"pct":0}}
+{"type":"ACTIVITY_DELTA","messageId":"act_1","activityType":"progress","patch":[{"op":"replace","path":"/pct","value":50}]}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}
