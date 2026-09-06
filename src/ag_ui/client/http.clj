@@ -10,6 +10,16 @@
    :run-id (str "run_" (System/currentTimeMillis))
    :messages [{:id "u1" :role "user" :content "Hello"}]})
 
+(defn- body->str
+  "Normalize an HTTP body on both JVM http-kit and Babashka."
+  [body]
+  (cond
+    (string? body) body
+    (nil? body) ""
+    (instance? java.io.InputStream body) (slurp body)
+    (instance? java.io.Reader body) (slurp body)
+    :else (str body)))
+
 (defn run-agent
   "POST RunAgentInput to url and parse the SSE response.
 
@@ -41,11 +51,7 @@
       {:ok false :kind :http :status status :body body}
 
       :else
-      (let [body (cond
-                    (string? body) body
-                    (nil? body) ""
-                    (bytes? body) (String. ^bytes body "UTF-8")
-                    :else (slurp body))
+      (let [body (body->str body)
             decoded (sse/decode-stream body)
             failures (filterv (comp not :ok) decoded)
             events (mapv :event (filter :ok decoded))]

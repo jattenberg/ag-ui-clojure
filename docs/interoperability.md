@@ -8,6 +8,7 @@ Start the echo server:
 
 ```bash
 clojure -M:server 8000
+# or: bb server 8000
 ```
 
 POST from any AG-UI client (curl is the baseline; CopilotKit `HttpAgent` and `@ag-ui/client` are the canonical TS clients):
@@ -45,6 +46,7 @@ Against this repo’s server:
 ```bash
 clojure -M:server 8000
 clojure -M:client http://127.0.0.1:8000/ Hello
+bb client http://127.0.0.1:8000/ Hello
 ```
 
 Against a Python AG-UI server (upstream quickstart / `ag-ui-protocol` encoder):

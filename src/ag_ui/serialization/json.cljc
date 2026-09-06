@@ -3,9 +3,21 @@
 
   Protocol envelope fields become kebab-case keywords. Opaque JSON
   (state, snapshots, metadata values, CUSTOM/RAW payloads, patch
-  `value`s) keeps string keys so JSON Patch pointers match the wire."
-  (:require [clojure.data.json :as json]
-            [ag-ui.serialization.fields :as fields]))
+  `value`s) keeps string keys so JSON Patch pointers match the wire.
+
+  JVM uses clojure.data.json; Babashka uses built-in Cheshire (data.json
+  2.5 uses definterface, which SCI cannot load)."
+  (:require [ag-ui.serialization.fields :as fields]
+            #?(:bb [cheshire.core :as cheshire]
+               :clj [clojure.data.json :as data-json])))
+
+(defn- write-json [x]
+  #?(:bb (cheshire/generate-string x)
+     :clj (data-json/write-str x)))
+
+(defn- read-json [s]
+  #?(:bb (cheshire/parse-string s)
+     :clj (data-json/read-str s)))
 
 (def opaque-keys
   #{:snapshot :raw-event :value :event :payload :state
@@ -75,13 +87,13 @@
 
 (defn encode-json
   [obj]
-  (json/write-str (clj->wire-value obj)))
+  (write-json (clj->wire-value obj)))
 
 (defn decode-json
   [s]
   (when (or (nil? s) (and (string? s) (not (re-find #"\S" s))))
     (throw (ex-info "empty JSON" {:reason :empty})))
-  (wire->clj-value (json/read-str s)))
+  (wire->clj-value (read-json s)))
 
 (defn decode-json-strict
   [s]

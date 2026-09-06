@@ -14,18 +14,23 @@ AG-UI is an event protocol: an application sends one `RunAgentInput` and receive
 
 ## Installation
 
-Requires Clojure CLI (1.12+) and a JDK.
+Requires Clojure CLI (1.12+) and a JDK for the full suite. [Babashka](https://babashka.org/) is optional for the same protocol code without a JVM: conformance CLI, unit tests, client, and a short-lived echo server.
 
 ```bash
 git clone <this-repo>
 cd ag-ui-clojure
 clojure -P -M:test
+# optional
+bb test
+bb conformance
 ```
 
 ## Minimal server
 
 ```bash
 clojure -M:server 8000
+# or, as a fast native probe:
+bb server 8000
 ```
 
 ```bash
@@ -53,6 +58,7 @@ CLI:
 
 ```bash
 clojure -M:client http://127.0.0.1:8000/ Hello
+bb client http://127.0.0.1:8000/ Hello
 ```
 
 Events are plain maps:
@@ -72,6 +78,9 @@ Events are plain maps:
 clojure -M:conformance
 clojure -M:conformance --endpoint http://127.0.0.1:8000/
 clojure -M:test
+bb conformance
+bb conformance --endpoint http://127.0.0.1:8000/
+bb test
 ```
 
 See [`docs/conformance.md`](docs/conformance.md) and [`fixtures/`](fixtures/).
@@ -87,6 +96,7 @@ See [`docs/architecture.md`](docs/architecture.md). Protocol, JSON, SSE, and HTT
 ## Known limitations
 
 - HTTP+SSE only (no protobuf binding).
+- Dual runtime: JVM Clojure is the full implementation (property tests, preferred long-running server). Babashka runs the same protocol namespaces for conformance, unit tests, client, and a probe server.
 - Subagent attribution rules are not fully enforced beyond storing `subagent-run-id`.
 - 0.x `THINKING_*` compatibility translation is documented, not implemented.
 - JSON Schema is projected into Clojure tables; re-validate against `spec/draft/schema.json` before treating this as a schema oracle.

@@ -27,6 +27,8 @@ JSON Schema pin: `spec/draft/schema.json` (from https://ag-ui.com/spec/draft/sch
 ```bash
 clojure -M:conformance
 clojure -M:conformance --endpoint http://127.0.0.1:8000/
+bb conformance
+bb conformance --endpoint http://127.0.0.1:8000/
 ```
 
 The CLI:
@@ -39,6 +41,7 @@ The CLI:
 
 ```bash
 clojure -M:test
+bb test
 ```
 
-Property tests cover JSON round-trip of generated `RUN_STARTED` events and generated text-message runs (lifecycle + content concatenation).
+Property tests (`test.check`) cover JSON round-trip of generated `RUN_STARTED` events and generated text-message runs. They run only on the JVM.

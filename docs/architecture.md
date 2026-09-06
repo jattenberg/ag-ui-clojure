@@ -30,7 +30,7 @@ Opaque JSON (`snapshot`, `state`, `metadata`, `CUSTOM.value`, patch `value`) kee
 
 ## Validation
 
-`(ag-ui.protocol.validate/validate-event event)`  
+`(ag-ui.protocol.validate/validate-event event)`
 `(ag-ui.protocol.validate/validate-event event {:mode :runtime})`
 
 - `:authoring` — closed objects, unknown types fail (schema / fixtures).
@@ -44,9 +44,23 @@ Lifecycle is separate: `ag-ui.protocol.invariants`.
 
 ## Server
 
-`ag-ui.server.echo/events-for` is a pure function of `RunAgentInput`.  
+`ag-ui.server.echo/events-for` is a pure function of `RunAgentInput`.
 `ag-ui.server.http` POSTs `/` or `/agent` and writes SSE.
 
 ## Client
 
 `ag-ui.client.http/run-agent` returns decoded items, validated events, and a reduced state. Failures are tagged `:transport`, `:http`, or `:protocol`.
+
+## Dual runtime
+
+JVM uses `clojure.data.json`; Babashka uses built-in Cheshire for JSON (data.json 2.5 is not SCI-compatible). http-kit is available in both.
+
+| Surface | JVM (`clojure -M:…`) | Babashka (`bb …`) |
+| --- | --- | --- |
+| Conformance CLI | yes | yes |
+| Echo SSE server | preferred for long runs | probe |
+| HTTP client | yes | yes |
+| `clojure.test` unit tests | yes | yes |
+| `test.check` property tests | yes | no |
+
+Entry: [`bb.edn`](../bb.edn). Property tests live in `*_properties_test.clj` namespaces so `bb test` never loads `test.check`.

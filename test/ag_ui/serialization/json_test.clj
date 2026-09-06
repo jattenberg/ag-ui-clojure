@@ -1,10 +1,6 @@
 (ns ag-ui.serialization.json-test
-  (:require [clojure.test :refer [deftest is testing]]
-            [clojure.test.check.clojure-test :refer [defspec]]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]
-            [ag-ui.serialization.json :as json]
-            [ag-ui.protocol.validate :as v]))
+  (:require [clojure.test :refer [deftest is]]
+            [ag-ui.serialization.json :as json]))
 
 (deftest camelcase-round-trip
   (let [e {:type "RUN_STARTED" :thread-id "thr-1" :run-id "run-1"}
@@ -30,15 +26,3 @@
   (let [e {:type "STATE_SNAPSHOT" :snapshot {:draft {:title "x"}}}
         decoded (json/decode-json-strict (json/encode-json e))]
     (is (= "x" (get-in decoded [:snapshot "draft" "title"])))))
-
-(def gen-run-started
-  (gen/hash-map
-   :type (gen/return "RUN_STARTED")
-   :thread-id gen/string-alphanumeric
-   :run-id gen/string-alphanumeric))
-
-(defspec encode-decode-preserves-run-started 50
-  (prop/for-all [e gen-run-started]
-    (let [decoded (json/decode-json-strict (json/encode-json e))]
-      (and (= e decoded)
-           (:ok (v/validate-event decoded))))))
