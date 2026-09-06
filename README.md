@@ -40,7 +40,7 @@ curl -N -X POST http://127.0.0.1:8000/ \
   -d '{"threadId":"t","runId":"r","messages":[{"id":"u1","role":"user","content":"Hello"}]}'
 ```
 
-The echo agent is deterministic (no LLM). Keywords in the user text: `tool`, `state`, `interrupt`, `error`, `custom`.
+The echo agent is deterministic (no LLM). Keywords in the user text: `tool`, `state`, `interrupt`, `error`, `custom`, `activity`, `subagent`, `reasoning`, `encrypted`, `snapshot`, `chunk`.
 
 ## Minimal client
 
@@ -83,7 +83,7 @@ bb conformance --endpoint http://127.0.0.1:8000/
 bb test
 ```
 
-See [`docs/conformance.md`](docs/conformance.md), [`fixtures/manifest.json`](fixtures/manifest.json), and [`fixtures/`](fixtures/).
+See [`docs/conformance.md`](docs/conformance.md), [`fixtures/manifest.json`](fixtures/manifest.json), [`docs/upstream.md`](docs/upstream.md), and [`fixtures/`](fixtures/).
 
 ## Interoperability
 
@@ -97,7 +97,6 @@ See [`docs/architecture.md`](docs/architecture.md). Protocol, JSON, SSE, and HTT
 
 - HTTP+SSE only (no protobuf binding).
 - Dual runtime: JVM Clojure is the full implementation (property tests, JSON Schema, preferred long-running server). Babashka runs the same protocol namespaces for conformance, unit tests, client, and a probe server.
-- Nested subagent `parentSubagentRunId` rules are not fully enforced.
 - Live CopilotKit Dojo tests are manual.
 
 ## Spec ambiguities

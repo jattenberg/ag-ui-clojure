@@ -48,6 +48,10 @@
   "Events that describe the run or conversation as a whole (no subagentRunId)."
   #{"RUN_STARTED" "RUN_FINISHED" "RUN_ERROR" "MESSAGES_SNAPSHOT"})
 
+(def subagent-identity-types
+  "Events whose subagentRunId names the invocation itself, not attribution."
+  #{"SUBAGENT_STARTED" "SUBAGENT_FINISHED" "SUBAGENT_ERROR"})
+
 (def chunk-types
   #{"TEXT_MESSAGE_CHUNK" "TOOL_CALL_CHUNK" "REASONING_MESSAGE_CHUNK"})
 

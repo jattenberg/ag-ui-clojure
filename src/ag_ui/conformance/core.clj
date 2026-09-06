@@ -78,79 +78,110 @@
      :ok (= decoded event)}))
 
 (defn check-valid-stream
-  [events]
-  (let [translated (compat/translate-stream events)
-        events* (:events translated)
-        structs (mapv #(validate/validate-event % {:mode :authoring}) events*)
-        failed (filterv (comp not :ok) structs)]
-    (if (seq failed)
-      {:ok false :stage :structure :failures failed}
-      (let [schema-results (mapv validate-against-schema events*)
-            schema-fail (filterv (comp not :ok) schema-results)]
-        (if (seq schema-fail)
-          {:ok false :stage :schema :failures schema-fail}
-          (let [expanded (chunks/expand-chunks events*)]
-            (if-not (:ok expanded)
-              {:ok false :stage :chunks :error (:error expanded)}
-              (let [life (inv/check-stream (:events expanded))]
-                (if-not (:ok life)
-                  {:ok false :stage :lifecycle :violation (:violation life)}
-                  (let [state (reduce/reduce-events events)]
-                    (if (= :protocol-error (:status state))
-                      {:ok false :stage :reduce :violation (:violation state)}
-                      {:ok true
-                       :events events*
-                       :expanded (:events expanded)
-                       :warnings (:warnings translated)
-                       :state state})))))))))))
+  "Validate a decoded event seq. profile is :producer (authoring+schema) or :consumer (runtime)."
+  ([events] (check-valid-stream events :producer))
+  ([events profile]
+   (let [translated (compat/translate-stream events)
+         events* (:events translated)
+         mode (if (= profile :consumer) :runtime :authoring)
+         structs (mapv #(validate/validate-event % {:mode mode}) events*)
+         fatal (filterv (fn [r] (and (not (:ok r)) (not (:dropped? r)))) structs)
+         kept (if (= profile :consumer)
+                (into [] (keep (fn [r]
+                                 (when (and (:ok r) (not (:dropped? r)))
+                                   (:event r)))
+                               structs))
+                events*)
+         schema-fail (when (= profile :producer)
+                       (filterv (comp not :ok) (mapv validate-against-schema kept)))]
+     (cond
+       (seq fatal)
+       {:ok false :stage :structure :failures fatal :warnings (:warnings translated)}
+
+       (seq schema-fail)
+       {:ok false :stage :schema :failures schema-fail}
+
+       :else
+       (let [expanded (chunks/expand-chunks kept)]
+         (if-not (:ok expanded)
+           {:ok false :stage :chunks :error (:error expanded)}
+           (let [life (inv/check-stream (:events expanded))]
+             (if-not (:ok life)
+               {:ok false :stage :lifecycle :violation (:violation life)}
+               (let [state (reduce/reduce-events events)]
+                 (if (= :protocol-error (:status state))
+                   {:ok false :stage :reduce :violation (:violation state)}
+                   {:ok true
+                    :events kept
+                    :expanded (:events expanded)
+                    :warnings (into (vec (:warnings translated))
+                                    (mapcat :warnings structs))
+                    :state state}))))))))))
 
 (defn- fixture-file [relative]
   (io/file (repo-root) relative))
 
+(defn included-in-profile?
+  [entry profile]
+  (let [p (name profile)
+        override (get entry (keyword p))]
+    (cond
+      (some? override) true
+      (seq (:profiles entry)) (contains? (set (:profiles entry)) p)
+      :else true)))
+
+(defn expected-outcome
+  "accept | reject, from per-profile override or status."
+  [entry profile]
+  (or (get entry (keyword (name profile)))
+      (if (= "valid" (:status entry)) "accept" "reject")))
+
+(defn- evaluate-entry
+  [entry profile]
+  (if-not (included-in-profile? entry profile)
+    {:name (:id entry) :ok true :skipped true :profile profile}
+    (let [expect (expected-outcome entry profile)
+          f (fixture-file (:path entry))
+          loaded (load-event-file f)
+          decode-fail (filterv (comp not :ok) (:items loaded))
+          events (mapv :event (filter :ok (:items loaded)))
+          checked (when (seq events) (check-valid-stream events profile))
+          accepted? (and (empty? decode-fail) (boolean (:ok checked)))
+          met? (if (= "accept" expect) accepted? (not accepted?))
+          trips (when (and met? (= "accept" expect) (seq (:events checked)))
+                  (mapv round-trip (:events checked)))
+          trip-fail (filterv (comp not :ok) (or trips []))]
+      (merge {:name (:id entry)
+              :file (str f)
+              :profile profile
+              :expected expect
+              :why (:why entry)
+              :invariants (:invariants entry)
+              :decode-fail? (boolean (seq decode-fail))
+              :check checked}
+             (if (seq trip-fail)
+               {:ok false :stage :round-trip :failures trip-fail}
+               {:ok met?})))))
+
+(defn run-profile
+  "Run every manifest stream against one profile. :ok means the expectation was met."
+  [profile]
+  (mapv #(evaluate-entry % profile) (:streams (load-manifest))))
+
 (defn run-valid-fixtures
   []
-  (let [manifest (load-manifest)
-        entries (filterv #(= "valid" (:status %)) (:streams manifest))]
-    (mapv (fn [entry]
-            (let [f (fixture-file (:path entry))
-                  loaded (load-event-file f)
-                  decode-fail (filterv (comp not :ok) (:items loaded))]
-              (if (seq decode-fail)
-                {:name (:id entry)
-                 :file (str f)
-                 :ok false
-                 :stage :decode
-                 :failures decode-fail}
-                (let [events (mapv :event (:items loaded))
-                      result (check-valid-stream events)
-                      trips (mapv round-trip (or (:events result) events))
-                      trip-fail (filterv (comp not :ok) trips)]
-                  (merge {:name (:id entry) :file (str f) :invariants (:invariants entry)}
-                         (if (seq trip-fail)
-                           {:ok false :stage :round-trip :failures trip-fail}
-                           result))))))
-          entries)))
+  (filterv (fn [r]
+             (and (not (:skipped r))
+                  (= "accept" (:expected r))))
+           (run-profile :producer)))
 
 (defn run-malformed-fixtures
   "Each malformed fixture must fail structure, decode, schema, or lifecycle."
   []
-  (let [manifest (load-manifest)
-        entries (filterv #(= "malformed" (:status %)) (:streams manifest))]
-    (mapv (fn [entry]
-            (let [f (fixture-file (:path entry))
-                  loaded (load-event-file f)
-                  decode-fail? (some (comp not :ok) (:items loaded))
-                  events (mapv :event (filter :ok (:items loaded)))
-                  checked (when (seq events) (check-valid-stream events))
-                  rejected? (or decode-fail? (and checked (not (:ok checked))))]
-              {:name (:id entry)
-               :file (str f)
-               :ok rejected?
-               :expected :reject
-               :why (:why entry)
-               :decode-fail? (boolean decode-fail?)
-               :check checked}))
-          entries)))
+  (filterv (fn [r]
+             (and (not (:skipped r))
+                  (= "reject" (:expected r))))
+           (run-profile :producer)))
 
 (defn run-resume-fixtures
   []

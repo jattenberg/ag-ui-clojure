@@ -1,0 +1,5 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"SUBAGENT_STARTED","subagentRunId":"sa_1","name":"parent"}
+{"type":"SUBAGENT_STARTED","subagentRunId":"sa_2","name":"child","parentSubagentRunId":"sa_1"}
+{"type":"SUBAGENT_FINISHED","subagentRunId":"sa_1"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

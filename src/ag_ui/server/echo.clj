@@ -29,6 +29,15 @@
         text (last-user-text input)
         lower (str/lower-case (or text ""))]
     (cond
+      (seq (:resume input))
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"
+        :input input}
+       {:type "TEXT_MESSAGE_START" :message-id "msg_1" :role "assistant"}
+       {:type "TEXT_MESSAGE_CONTENT" :message-id "msg_1" :delta "Resumed."}
+       {:type "TEXT_MESSAGE_END" :message-id "msg_1"}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id
+        :outcome {:type "success"}}]
+
       (str/includes? lower "tool")
       [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
        {:type "TOOL_CALL_START" :tool-call-id "call_1" :tool-call-name "lookup" :parent-message-id "msg_tool"}
@@ -63,6 +72,58 @@
       (str/includes? lower "custom")
       [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
        {:type "CUSTOM" :name "ag-ui-clojure.ping" :value {:ok true}}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
+
+      (str/includes? lower "activity")
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
+       {:type "ACTIVITY_SNAPSHOT" :message-id "act_1" :activity-type "progress" :content {"pct" 0}}
+       {:type "ACTIVITY_DELTA" :message-id "act_1" :activity-type "progress"
+        :patch [{:op "replace" :path "/pct" :value 100}]}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
+
+      (str/includes? lower "subagent")
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
+       {:type "SUBAGENT_STARTED" :subagent-run-id "sa_1" :name "researcher"}
+       {:type "SUBAGENT_STARTED" :subagent-run-id "sa_2" :name "writer" :parent-subagent-run-id "sa_1"}
+       {:type "TEXT_MESSAGE_START" :message-id "msg_sa" :role "assistant" :subagent-run-id "sa_2"}
+       {:type "TEXT_MESSAGE_CONTENT" :message-id "msg_sa" :delta "nested" :subagent-run-id "sa_2"}
+       {:type "TEXT_MESSAGE_END" :message-id "msg_sa" :subagent-run-id "sa_2"}
+       {:type "SUBAGENT_FINISHED" :subagent-run-id "sa_2"}
+       {:type "SUBAGENT_FINISHED" :subagent-run-id "sa_1"}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
+
+      (str/includes? lower "encrypted")
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
+       {:type "REASONING_START" :message-id "span_1"}
+       {:type "REASONING_ENCRYPTED_VALUE" :subtype "message" :entity-id "span_1"
+        :encrypted-value "opaque"}
+       {:type "REASONING_END" :message-id "span_1"}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
+
+      (str/includes? lower "reasoning")
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
+       {:type "REASONING_START" :message-id "span_1"}
+       {:type "REASONING_MESSAGE_START" :message-id "rm_1" :role "reasoning"}
+       {:type "REASONING_MESSAGE_CONTENT" :message-id "rm_1" :delta "thinking"}
+       {:type "REASONING_MESSAGE_END" :message-id "rm_1"}
+       {:type "REASONING_END" :message-id "span_1"}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
+
+      (str/includes? lower "snapshot")
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
+       {:type "ACTIVITY_SNAPSHOT" :message-id "act_keep" :activity-type "progress" :content {"pct" 1}}
+       {:type "TEXT_MESSAGE_START" :message-id "drop_me" :role "assistant"}
+       {:type "TEXT_MESSAGE_CONTENT" :message-id "drop_me" :delta "gone"}
+       {:type "TEXT_MESSAGE_END" :message-id "drop_me"}
+       {:type "MESSAGES_SNAPSHOT"
+        :messages [{:id "u1" :role "user" :content "hi"}
+                   {:id "a1" :role "assistant" :content "there"}]}
+       {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
+
+      (str/includes? lower "chunk")
+      [{:type "RUN_STARTED" :thread-id thread-id :run-id run-id :protocol-version "1.0"}
+       {:type "TEXT_MESSAGE_CHUNK" :message-id "msg_1" :role "assistant" :delta "Hello"}
+       {:type "TEXT_MESSAGE_CHUNK" :delta ", chunks."}
        {:type "RUN_FINISHED" :thread-id thread-id :run-id run-id}]
 
       :else

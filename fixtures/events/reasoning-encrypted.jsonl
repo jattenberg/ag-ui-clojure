@@ -1,0 +1,5 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"REASONING_START","messageId":"span_1"}
+{"type":"REASONING_ENCRYPTED_VALUE","subtype":"message","entityId":"span_1","encryptedValue":"opaque-blob"}
+{"type":"REASONING_END","messageId":"span_1"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

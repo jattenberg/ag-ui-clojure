@@ -191,7 +191,8 @@
 
    "REASONING_ENCRYPTED_VALUE"
    {:required #{:type :subtype :entity-id :encrypted-value}
-    :optional (opt base-optional attributable-optional)}
+    :optional (opt base-optional attributable-optional)
+    :enums {:subtype #{"tool-call" "message"}}}
 
    "SUBAGENT_STARTED"
    {:required #{:type :subagent-run-id :name}

@@ -3,7 +3,7 @@
   "schema": "spec/draft/schema.json",
   "schemaUrl": "https://ag-ui.com/spec/draft/schema.json",
   "wire": "JSON objects, camelCase field names, one event per JSONL line",
-  "notes": "Language-neutral. Consume these files without Clojure. Valid streams must pass structural schema + lifecycle. Malformed streams must be rejected by a producer/authoring validator.",
+  "notes": "Language-neutral. Consume these files without Clojure. status valid/malformed applies to both profiles unless producer/consumer overrides (accept|reject) are set. Producer = authoring/schema. Consumer = processing model (drop unknown types, strip unknown fields).",
   "streams": [
     {
       "id": "basic-run",
@@ -91,6 +91,50 @@
       "invariants": ["activity-snapshot-delta"]
     },
     {
+      "id": "reasoning-chunk",
+      "status": "valid",
+      "path": "fixtures/events/reasoning-chunk.jsonl",
+      "invariants": ["chunk-expansion", "reasoning-message"]
+    },
+    {
+      "id": "reasoning-encrypted",
+      "status": "valid",
+      "path": "fixtures/events/reasoning-encrypted.jsonl",
+      "invariants": ["reasoning-span"]
+    },
+    {
+      "id": "messages-snapshot",
+      "status": "valid",
+      "path": "fixtures/events/messages-snapshot.jsonl",
+      "invariants": ["messages-snapshot-keep-drop"]
+    },
+    {
+      "id": "success-outcome",
+      "status": "valid",
+      "path": "fixtures/events/success-outcome.jsonl",
+      "invariants": ["run-lifecycle"]
+    },
+    {
+      "id": "nested-subagent",
+      "status": "valid",
+      "path": "fixtures/events/nested-subagent.jsonl",
+      "invariants": ["subagent-lifecycle", "nested-subagent"]
+    },
+    {
+      "id": "future-event",
+      "path": "fixtures/events/future-event.jsonl",
+      "producer": "reject",
+      "consumer": "accept",
+      "why": "unknown type is a producer error and a consumer drop"
+    },
+    {
+      "id": "extra-property",
+      "path": "fixtures/events/extra-property.jsonl",
+      "producer": "reject",
+      "consumer": "accept",
+      "why": "unevaluated property is a producer error; consumers strip it"
+    },
+    {
       "id": "missing-required-field",
       "status": "malformed",
       "path": "fixtures/malformed/missing-required-field.json",
@@ -99,6 +143,7 @@
     {
       "id": "unknown-event-type",
       "status": "malformed",
+      "profiles": ["producer"],
       "path": "fixtures/malformed/unknown-event-type.json",
       "why": "type is not an EventType (authoring/producer)"
     },
@@ -143,6 +188,18 @@
       "status": "malformed",
       "path": "fixtures/malformed/partial-resume.jsonl",
       "why": "next RUN_STARTED.input.resume does not cover every interrupt"
+    },
+    {
+      "id": "nested-subagent-unknown-parent",
+      "status": "malformed",
+      "path": "fixtures/malformed/nested-subagent-unknown-parent.jsonl",
+      "why": "parentSubagentRunId does not name an open subagent"
+    },
+    {
+      "id": "nested-subagent-parent-first",
+      "status": "malformed",
+      "path": "fixtures/malformed/nested-subagent-parent-first.jsonl",
+      "why": "parent SUBAGENT_FINISHED while a child is still open"
     }
   ]
 }

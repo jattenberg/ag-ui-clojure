@@ -77,7 +77,7 @@ B. Producer/authoring: invalid.
 
 ### Current implementation
 
-Both modes exist. `fixtures/malformed/unknown-event-type.json` is invalid for **producers**.
+Both modes exist as conformance **profiles** (`--profile producer` vs `--profile consumer`). `future-event.jsonl` must be rejected by producers and accepted (dropped) by consumers. `fixtures/malformed/unknown-event-type.json` is producer-only.
 
 ### Interoperability impact
 
@@ -172,7 +172,7 @@ Clients that require `outcome` break on 0.x servers (the draft says they must no
 
 ### Recommendation
 
-Keep absence as success; add a test vector for both spellings (this repo’s interrupt fixture uses the explicit interrupt variant only).
+Keep absence as success; both spellings are fixture-covered (`basic-run.jsonl` omits `outcome`, `success-outcome.jsonl` sends `{type:"success"}`).
 
 ---
 

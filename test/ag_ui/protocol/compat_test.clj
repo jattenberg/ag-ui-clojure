@@ -55,3 +55,27 @@
             {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])]
     (is (= :finished (:status s)))
     (is (= "hi" (get-in s [:messages-by-id "m" :content])))))
+
+(deftest nested-subagent-parent-must-be-open
+  (is (not (:ok (inv/check-stream
+                 [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+                  {:type "SUBAGENT_STARTED" :subagent-run-id "child" :name "w"
+                   :parent-subagent-run-id "missing"}
+                  {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])))))
+
+(deftest nested-subagent-child-closes-first
+  (is (:ok (inv/check-stream
+            [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+             {:type "SUBAGENT_STARTED" :subagent-run-id "p" :name "parent"}
+             {:type "SUBAGENT_STARTED" :subagent-run-id "c" :name "child"
+              :parent-subagent-run-id "p"}
+             {:type "SUBAGENT_FINISHED" :subagent-run-id "c"}
+             {:type "SUBAGENT_FINISHED" :subagent-run-id "p"}
+             {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])))
+  (is (not (:ok (inv/check-stream
+                 [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+                  {:type "SUBAGENT_STARTED" :subagent-run-id "p" :name "parent"}
+                  {:type "SUBAGENT_STARTED" :subagent-run-id "c" :name "child"
+                   :parent-subagent-run-id "p"}
+                  {:type "SUBAGENT_FINISHED" :subagent-run-id "p"}
+                  {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])))))

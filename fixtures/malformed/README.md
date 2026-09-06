@@ -12,5 +12,7 @@ These files are **invalid** AG-UI. Conformance tools must reject them.
 | `subagent-finish-without-start.jsonl` | `SUBAGENT_FINISHED` without a matching start | subagent lifecycle |
 | `reasoning-end-without-start.jsonl` | `REASONING_END` without `REASONING_START` | reasoning span |
 | `partial-resume.jsonl` | next run's `resume` omits an open interrupt | interrupt–resume coverage |
+| `nested-subagent-unknown-parent.jsonl` | `parentSubagentRunId` is not an open subagent | nested subagents |
+| `nested-subagent-parent-first.jsonl` | parent `SUBAGENT_FINISHED` while a child is open | nested subagents |
 
 Runtime consumers **drop** unknown *future* event types (processing model). Authoring validation and this fixture suite treat unknown types as producer errors.

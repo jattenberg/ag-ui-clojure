@@ -13,3 +13,8 @@
 (deftest resume-fixtures
   (doseq [r (core/run-resume-fixtures)]
     (is (:ok r) (pr-str r))))
+
+(deftest producer-and-consumer-profiles
+  (doseq [profile [:producer :consumer]]
+    (doseq [r (core/run-profile profile)]
+      (is (:ok r) (pr-str r)))))

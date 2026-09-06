@@ -24,7 +24,7 @@ Expected event types, in order:
 
 `RUN_STARTED`, `TEXT_MESSAGE_START`, `TEXT_MESSAGE_CONTENT`, `TEXT_MESSAGE_CONTENT`, `TEXT_MESSAGE_END`, `RUN_FINISHED`
 
-Prompt keywords the echo agent understands: `tool`, `state`, `interrupt`, `error`, `custom`.
+Prompt keywords the echo agent understands: `tool`, `state`, `interrupt`, `error`, `custom`, `activity`, `subagent`, `reasoning`, `encrypted`, `snapshot`, `chunk`. A `resume` array on the input starts a success run.
 
 Node (`undici`, no AG-UI SDK required — still a valid SSE client):
 
@@ -102,4 +102,4 @@ node consume-http-agent.mjs http://127.0.0.1:8000/
 - Clojure client parses SSE from the echo server and from curl-produced fixtures.
 - Python `EventEncoder` documentation output (`data: {"type":"TEXT_MESSAGE_CONTENT","messageId":...}`) matches this encoder’s field naming.
 
-Live tests against CopilotKit Dojo or a third-party cloud agent are **environment-dependent** and are not run in CI. Commands above are the reproduction path.
+Live tests against CopilotKit Dojo or a third-party cloud agent are **environment-dependent**. Python encoder, Python echo server, Node `fetch`, and `@ag-ui/client` against this repo’s echo server run in [`script/ci.sh`](../script/ci.sh).

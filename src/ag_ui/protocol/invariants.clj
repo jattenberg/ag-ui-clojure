@@ -17,6 +17,7 @@
    :open-reasoning #{}
    :open-reasoning-spans #{}
    :open-subagents #{}
+   :subagent-parents {}
    :pending-interrupts []
    :message-roles {}
    :tool-names {}})
@@ -31,6 +32,12 @@
 
 (defn- ok [tracker]
   {:ok true :tracker tracker})
+
+(defn- open-children
+  [tracker parent-id]
+  (into [] (keep (fn [[id parent]]
+                   (when (= parent parent-id) id))
+                 (:subagent-parents tracker))))
 
 (defn- start-run [tracker event]
   (let [pending (:pending-interrupts tracker)
@@ -81,6 +88,7 @@
       (let [sid (:subagent-run-id event)
             attr-err (when (and sid
                                 (not (contains? events/run-scoped-types t))
+                                (not (contains? events/subagent-identity-types t))
                                 (seq (:open-subagents tracker))
                                 (not (contains? (:open-subagents tracker) sid)))
                        (fail tracker event :unknown-subagent
@@ -133,6 +141,7 @@
                        :open-reasoning #{}
                        :open-reasoning-spans #{}
                        :open-subagents #{}
+                       :subagent-parents {}
                        :pending-interrupts []))
 
             "TEXT_MESSAGE_START"
@@ -219,22 +228,49 @@
                     "A producer MUST NOT send an end event for an identifier that is not open"))
 
             "SUBAGENT_STARTED"
-            (if (contains? (:open-subagents tracker) (:subagent-run-id event))
-              (fail tracker event :already-open
-                    "A producer MUST NOT open a subagent whose subagentRunId is already open")
-              (ok (update tracker :open-subagents conj (:subagent-run-id event))))
+            (let [id (:subagent-run-id event)
+                  parent (:parent-subagent-run-id event)]
+              (cond
+                (contains? (:open-subagents tracker) id)
+                (fail tracker event :already-open
+                      "A producer MUST NOT open a subagent whose subagentRunId is already open")
+                (and parent (not (contains? (:open-subagents tracker) parent)))
+                (fail tracker event :unknown-parent-subagent
+                      "parentSubagentRunId must name an open subagent")
+                :else
+                (ok (-> tracker
+                        (update :open-subagents conj id)
+                        (assoc-in [:subagent-parents id] parent)))))
 
             "SUBAGENT_FINISHED"
-            (if (contains? (:open-subagents tracker) (:subagent-run-id event))
-              (ok (update tracker :open-subagents disj (:subagent-run-id event)))
-              (fail tracker event :not-open
-                    "A producer MUST NOT finish a subagent that was never opened"))
+            (let [id (:subagent-run-id event)
+                  kids (open-children tracker id)]
+              (cond
+                (not (contains? (:open-subagents tracker) id))
+                (fail tracker event :not-open
+                      "A producer MUST NOT finish a subagent that was never opened")
+                (seq kids)
+                (fail tracker event :open-child-subagent
+                      "A producer MUST NOT finish a subagent while nested invocations are still open")
+                :else
+                (ok (-> tracker
+                        (update :open-subagents disj id)
+                        (update :subagent-parents dissoc id)))))
 
             "SUBAGENT_ERROR"
-            (if (contains? (:open-subagents tracker) (:subagent-run-id event))
-              (ok (update tracker :open-subagents disj (:subagent-run-id event)))
-              (fail tracker event :not-open
-                    "A producer MUST NOT error a subagent that was never opened"))
+            (let [id (:subagent-run-id event)
+                  kids (open-children tracker id)]
+              (cond
+                (not (contains? (:open-subagents tracker) id))
+                (fail tracker event :not-open
+                      "A producer MUST NOT error a subagent that was never opened")
+                (seq kids)
+                (fail tracker event :open-child-subagent
+                      "A producer MUST NOT error a subagent while nested invocations are still open")
+                :else
+                (ok (-> tracker
+                        (update :open-subagents disj id)
+                        (update :subagent-parents dissoc id)))))
 
             (ok tracker)))))))
 

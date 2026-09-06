@@ -1,0 +1,6 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"REASONING_START","messageId":"span_1"}
+{"type":"REASONING_MESSAGE_CHUNK","messageId":"rm_1","delta":"part a"}
+{"type":"REASONING_MESSAGE_CHUNK","delta":" part b"}
+{"type":"REASONING_END","messageId":"span_1"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

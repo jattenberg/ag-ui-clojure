@@ -52,3 +52,17 @@
 (deftest json-patch-add-append
   (is (= {:ok true :doc {"a" [1 2]}}
          (patch/apply-patch {"a" [1]} [{:op "add" :path "/a/-" :value 2}]))))
+
+(deftest messages-snapshot-keeps-activity
+  (let [s (reduce/reduce-events
+           [{:type "RUN_STARTED" :thread-id "t" :run-id "r"}
+            {:type "ACTIVITY_SNAPSHOT" :message-id "act" :activity-type "p" :content {"pct" 1}}
+            {:type "TEXT_MESSAGE_START" :message-id "drop" :role "assistant"}
+            {:type "TEXT_MESSAGE_CONTENT" :message-id "drop" :delta "x"}
+            {:type "TEXT_MESSAGE_END" :message-id "drop"}
+            {:type "MESSAGES_SNAPSHOT"
+             :messages [{:id "u1" :role "user" :content "hi"}]}
+            {:type "RUN_FINISHED" :thread-id "t" :run-id "r"}])]
+    (is (get-in s [:messages-by-id "act"]))
+    (is (nil? (get-in s [:messages-by-id "drop"])))
+    (is (= "hi" (get-in s [:messages-by-id "u1" :content])))))

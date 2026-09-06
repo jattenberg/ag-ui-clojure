@@ -1,0 +1,9 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"SUBAGENT_STARTED","subagentRunId":"sa_1","name":"researcher"}
+{"type":"SUBAGENT_STARTED","subagentRunId":"sa_2","name":"writer","parentSubagentRunId":"sa_1"}
+{"type":"TEXT_MESSAGE_START","messageId":"m","role":"assistant","subagentRunId":"sa_2"}
+{"type":"TEXT_MESSAGE_CONTENT","messageId":"m","delta":"nested","subagentRunId":"sa_2"}
+{"type":"TEXT_MESSAGE_END","messageId":"m","subagentRunId":"sa_2"}
+{"type":"SUBAGENT_FINISHED","subagentRunId":"sa_2"}
+{"type":"SUBAGENT_FINISHED","subagentRunId":"sa_1"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

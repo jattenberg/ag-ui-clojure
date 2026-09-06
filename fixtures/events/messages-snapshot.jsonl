@@ -1,0 +1,7 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"ACTIVITY_SNAPSHOT","messageId":"act_keep","activityType":"progress","content":{"pct":1}}
+{"type":"TEXT_MESSAGE_START","messageId":"drop_me","role":"assistant"}
+{"type":"TEXT_MESSAGE_CONTENT","messageId":"drop_me","delta":"gone"}
+{"type":"TEXT_MESSAGE_END","messageId":"drop_me"}
+{"type":"MESSAGES_SNAPSHOT","messages":[{"id":"u1","role":"user","content":"hi"},{"id":"a1","role":"assistant","content":"there"}]}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}
