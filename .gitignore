@@ -1,0 +1,15 @@
+.cpcache/
+.nrepl-port
+.rebel_readline_history
+target/
+*.class
+*.jar
+.clj-kondo/.cache
+.lsp/.cache
+.idea/
+*.iml
+.calva/
+node_modules/
+.venv/
+__pycache__/
+.DS_Store

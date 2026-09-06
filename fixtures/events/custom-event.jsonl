@@ -1,0 +1,4 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"CUSTOM","name":"com.example.cart-updated","value":{"items":3}}
+{"type":"RAW","event":{"provider":"demo","id":"raw-1"},"source":"demo"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

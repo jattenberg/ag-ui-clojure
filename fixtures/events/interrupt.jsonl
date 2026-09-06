@@ -1,0 +1,4 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r1"}
+{"type":"STATE_SNAPSHOT","snapshot":{"pending":true}}
+{"type":"MESSAGES_SNAPSHOT","messages":[{"id":"u1","role":"user","content":"approve?"}]}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r1","outcome":{"type":"interrupt","interrupts":[{"id":"int_1","reason":"confirmation","message":"Proceed?"}]}}

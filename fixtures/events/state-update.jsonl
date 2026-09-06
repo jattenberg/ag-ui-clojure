@@ -1,0 +1,5 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"STATE_SNAPSHOT","snapshot":{"draft":{"title":"","items":[]}}}
+{"type":"STATE_DELTA","delta":[{"op":"replace","path":"/draft/title","value":"Notes"}]}
+{"type":"STATE_DELTA","delta":[{"op":"add","path":"/draft/items/0","value":{"text":"one"}}]}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

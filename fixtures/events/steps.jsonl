@@ -1,0 +1,6 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"STEP_STARTED","stepName":"plan"}
+{"type":"STEP_STARTED","stepName":"act"}
+{"type":"STEP_FINISHED","stepName":"plan"}
+{"type":"STEP_FINISHED","stepName":"act"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

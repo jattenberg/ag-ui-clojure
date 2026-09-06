@@ -1,0 +1,4 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"TEXT_MESSAGE_CHUNK","messageId":"m","role":"assistant","delta":"Hello "}
+{"type":"TEXT_MESSAGE_CHUNK","delta":"from chunks."}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

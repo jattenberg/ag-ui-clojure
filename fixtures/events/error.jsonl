@@ -1,0 +1,5 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"TEXT_MESSAGE_START","messageId":"m","role":"assistant"}
+{"type":"TEXT_MESSAGE_CONTENT","messageId":"m","delta":"partial"}
+{"type":"TEXT_MESSAGE_END","messageId":"m"}
+{"type":"RUN_ERROR","message":"provider timeout","code":"upstream_timeout"}

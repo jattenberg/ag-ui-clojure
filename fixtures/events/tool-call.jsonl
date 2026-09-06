@@ -1,0 +1,7 @@
+{"type":"RUN_STARTED","threadId":"t","runId":"r"}
+{"type":"TOOL_CALL_START","toolCallId":"call_1","toolCallName":"search","parentMessageId":"msg_a"}
+{"type":"TOOL_CALL_ARGS","toolCallId":"call_1","delta":"{\"q\":"}
+{"type":"TOOL_CALL_ARGS","toolCallId":"call_1","delta":"\"ag-ui\"}"}
+{"type":"TOOL_CALL_END","toolCallId":"call_1"}
+{"type":"TOOL_CALL_RESULT","messageId":"msg_tool","toolCallId":"call_1","content":"3 hits"}
+{"type":"RUN_FINISHED","threadId":"t","runId":"r"}

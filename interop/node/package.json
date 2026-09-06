@@ -1,0 +1,6 @@
+{
+  "name": "ag-ui-clojure-interop-node",
+  "private": true,
+  "type": "module",
+  "description": "Optional Node interop scripts. Not part of the Clojure protocol core."
+}
