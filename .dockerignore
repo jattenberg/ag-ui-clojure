@@ -1,0 +1,11 @@
+.git
+.cpcache
+.babashka
+target
+*.iml
+.idea
+.clj-kondo/.cache
+.lsp/.cache
+.calva
+node_modules
+.DS_Store
