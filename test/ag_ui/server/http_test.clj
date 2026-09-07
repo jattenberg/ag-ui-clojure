@@ -53,3 +53,17 @@
       (is (some #(= "ACTIVITY_SNAPSHOT" (:type %)) (:events result))))
     (finally
       (http/stop!))))
+
+(deftest mochi-protocol-zoo-page
+  (http/start! {:port 18769})
+  (try
+    (let [r @(hk/get "http://127.0.0.1:18769/")
+          body (:body r)
+          ct (or (get-in r [:headers :content-type])
+                 (get-in r [:headers "content-type"]))]
+      (is (= 200 (:status r)))
+      (is (re-find #"text/html" (str ct)))
+      (is (re-find #"Mochi Protocol Zoo" body))
+      (is (re-find #"data-keyword=\"subagent\"" body)))
+    (finally
+      (http/stop!))))

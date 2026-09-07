@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mochi Protocol Zoo</title>
+  <style>
+    :root {
+      --cream: #fff6ea;
+      --peach: #ffd6c4;
+      --blush: #f4a7a7;
+      --bean: #5c3d32;
+      --moss: #7a9e7e;
+      --card: #fffdf8;
+      --ink: #3a2a24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, #ffe8d6 0%, transparent 45%),
+        radial-gradient(circle at 90% 20%, #ffd5e5 0%, transparent 40%),
+        var(--cream);
+    }
+    main {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    header { text-align: center; }
+    h1 {
+      font-size: 1.6rem;
+      margin: 0.4rem 0 0.2rem;
+      letter-spacing: 0.02em;
+    }
+    .sub { margin: 0; color: #7a5c52; font-size: 0.95rem; }
+    .cost {
+      display: inline-block;
+      margin-top: 0.7rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: #e8f3e8;
+      color: #2f5d38;
+      font-size: 0.8rem;
+    }
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1.2rem 0 1rem;
+    }
+    .mochi {
+      width: 168px;
+      height: 168px;
+      transition: transform 0.25s ease;
+    }
+    .mochi.busy { animation: bounce 0.55s ease infinite; }
+    .mochi.oops { animation: wobble 0.45s ease 3; }
+    .mochi.wait { transform: translateY(-4px); }
+    @keyframes bounce {
+      50% { transform: translateY(-8px) scale(1.04); }
+    }
+    @keyframes wobble {
+      25% { transform: rotate(-8deg); }
+      75% { transform: rotate(8deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mochi.busy, .mochi.oops { animation: none; }
+    }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.45rem;
+      margin: 0.4rem 0 1rem;
+    }
+    .pills button, .resume {
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font: inherit;
+      font-size: 0.92rem;
+      background: var(--peach);
+      color: var(--bean);
+      box-shadow: 0 2px 0 #e8b39a;
+    }
+    .pills button:hover, .resume:hover { filter: brightness(1.05); }
+    .pills button[aria-pressed="true"] {
+      background: var(--blush);
+      color: #fff;
+      box-shadow: 0 2px 0 #d98989;
+    }
+    .pills button:disabled, .resume:disabled { opacity: 0.55; cursor: wait; }
+    .resume {
+      display: none;
+      margin: 0 auto 1rem;
+      background: var(--moss);
+      color: #fff;
+      box-shadow: 0 2px 0 #5d7d61;
+    }
+    .resume.show { display: block; }
+    .panel {
+      background: var(--card);
+      border-radius: 1.1rem;
+      padding: 0.9rem 1rem;
+      box-shadow: 0 8px 24px rgba(92, 61, 50, 0.08);
+    }
+    .panel h2 {
+      margin: 0 0 0.6rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8a6b61;
+    }
+    ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.45rem 0.6rem;
+      font-size: 0.82rem;
+      padding: 0.35rem 0.45rem;
+      border-radius: 0.6rem;
+      background: #fff6ea;
+      opacity: 0;
+      transform: translateY(4px);
+      animation: in 0.28s ease forwards;
+    }
+    @keyframes in { to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      li { animation: none; opacity: 1; transform: none; }
+    }
+    .type {
+      font-weight: 700;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.72rem;
+      color: #9a4f4f;
+    }
+    .detail {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #5c3d32;
+      grid-column: 1 / -1;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.72rem;
+    }
+    .empty { color: #8a6b61; font-size: 0.9rem; margin: 0; }
+    .err { color: #a33; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Mochi Protocol Zoo</h1>
+      <p class="sub">Tap a pill. Mochi streams a deterministic AG-UI run. No model.</p>
+      <span class="cost">$0 inference · one process · HTML from classpath</span>
+    </header>
+
+    <div class="stage">
+      <svg id="mochi" class="mochi" viewBox="0 0 200 200" role="img" aria-labelledby="mochi-title">
+        <title id="mochi-title">Round hamster mochi</title>
+        <ellipse cx="100" cy="168" rx="48" ry="10" fill="#e8cbb8" opacity="0.55"/>
+        <circle cx="100" cy="108" r="62" fill="#f7c7b3"/>
+        <circle cx="58" cy="78" r="18" fill="#f4b09a"/>
+        <circle cx="142" cy="78" r="18" fill="#f4b09a"/>
+        <circle cx="68" cy="112" r="16" fill="#fbe0d4"/>
+        <circle cx="132" cy="112" r="16" fill="#fbe0d4"/>
+        <ellipse id="eye-l" cx="80" cy="104" rx="7" ry="9" fill="#5c3d32"/>
+        <ellipse id="eye-r" cx="120" cy="104" rx="7" ry="9" fill="#5c3d32"/>
+        <circle cx="82" cy="101" r="2.2" fill="#fff"/>
+        <circle cx="122" cy="101" r="2.2" fill="#fff"/>
+        <ellipse cx="100" cy="118" rx="7" ry="5" fill="#e07a7a"/>
+        <path d="M93 124 Q100 132 107 124" fill="none" stroke="#c56b6b" stroke-width="2" stroke-linecap="round"/>
+        <g id="paws">
+          <ellipse cx="70" cy="148" rx="14" ry="10" fill="#f4b09a"/>
+          <ellipse cx="130" cy="148" rx="14" ry="10" fill="#f4b09a"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="pills" role="group" aria-label="Protocol families">
+      <button type="button" data-keyword="tool">tool</button>
+      <button type="button" data-keyword="state">state</button>
+      <button type="button" data-keyword="interrupt">interrupt</button>
+      <button type="button" data-keyword="error">error</button>
+      <button type="button" data-keyword="activity">activity</button>
+      <button type="button" data-keyword="subagent">subagent</button>
+    </div>
+    <button type="button" class="resume" id="resume" hidden>Proceed?</button>
+
+    <section class="panel" aria-live="polite">
+      <h2>Event stream</h2>
+      <p class="empty" id="empty">Waiting for a tap.</p>
+      <ol id="events"></ol>
+      <p class="err" id="err" hidden></p>
+    </section>
+  </main>
+  <script>
+    const pills = Array.from(document.querySelectorAll(".pills button"));
+    const resumeBtn = document.getElementById("resume");
+    const eventsEl = document.getElementById("events");
+    const emptyEl = document.getElementById("empty");
+    const errEl = document.getElementById("err");
+    const mochi = document.getElementById("mochi");
+
+    const parseSse = (body) =>
+      body.split("\n\n").flatMap((block) => {
+        const data = block.split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5).replace(/^ /, ""))
+          .join("\n");
+        if (!data) return [];
+        return [JSON.parse(data)];
+      });
+
+    const summarize = (event) => {
+      const skip = new Set(["type"]);
+      const rest = Object.fromEntries(
+        Object.entries(event).filter(([k]) => !skip.has(k))
+      );
+      const text = JSON.stringify(rest);
+      return text.length > 220 ? text.slice(0, 217) + "…" : text;
+    };
+
+    const interruptOf = (events) => {
+      const finished = [...events].reverse().find((e) => e.type === "RUN_FINISHED");
+      const interrupts = finished && finished.outcome && finished.outcome.interrupts;
+      return interrupts && interrupts[0];
+    };
+
+    const setBusy = (busy) => {
+      pills.forEach((b) => { b.disabled = busy; });
+      resumeBtn.disabled = busy;
+    };
+
+    const setMood = (cls) => {
+      mochi.classList.remove("busy", "oops", "wait");
+      if (cls) mochi.classList.add(cls);
+    };
+
+    const renderEvents = (events) => {
+      emptyEl.hidden = events.length > 0;
+      eventsEl.replaceChildren(
+        ...events.map((event, i) => {
+          const li = document.createElement("li");
+          li.style.animationDelay = (i * 70) + "ms";
+          const type = document.createElement("span");
+          type.className = "type";
+          type.textContent = event.type;
+          const detail = document.createElement("pre");
+          detail.className = "detail";
+          detail.textContent = summarize(event);
+          li.append(type, detail);
+          return li;
+        })
+      );
+    };
+
+    const runAgent = async (input) => {
+      errEl.hidden = true;
+      setBusy(true);
+      setMood("busy");
+      resumeBtn.classList.remove("show");
+      resumeBtn.hidden = true;
+      try {
+        const res = await fetch("/agent", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream"
+          },
+          body: JSON.stringify(input)
+        });
+        const body = await res.text();
+        if (!res.ok) {
+          throw new Error(body || ("HTTP " + res.status));
+        }
+        const events = parseSse(body);
+        renderEvents(events);
+        const last = events[events.length - 1];
+        setMood(last && last.type === "RUN_ERROR" ? "oops" : "");
+        const interrupt = interruptOf(events);
+        if (interrupt) {
+          resumeBtn.dataset.interruptId = interrupt.id;
+          resumeBtn.hidden = false;
+          resumeBtn.classList.add("show");
+          setMood("wait");
+        }
+      } catch (e) {
+        errEl.hidden = false;
+        const agentUrl = location.origin + "/agent";
+        const hint = location.protocol === "file:"
+          ? "This page was opened as a file. Run clojure -M:server 8000 and open http://127.0.0.1:8000/"
+          : "The echo server did not answer POST " + agentUrl + ". Start it with clojure -M:server 8000 and load that host (not a Cursor HTML preview).";
+        errEl.textContent = (e.message || String(e)) + " — " + hint;
+        setMood("oops");
+      } finally {
+        setBusy(false);
+      }
+    };
+
+    const runKeyword = (keyword) => {
+      pills.forEach((b) => {
+        b.setAttribute("aria-pressed", String(b.dataset.keyword === keyword));
+      });
+      return runAgent({
+        threadId: "mochi",
+        runId: "run-" + Date.now(),
+        messages: [{ id: "u1", role: "user", content: keyword }]
+      });
+    };
+
+    pills.forEach((button) => {
+      button.addEventListener("click", () => runKeyword(button.dataset.keyword));
+    });
+
+    resumeBtn.addEventListener("click", () => {
+      const interruptId = resumeBtn.dataset.interruptId;
+      pills.forEach((b) => b.setAttribute("aria-pressed", "false"));
+      runAgent({
+        threadId: "mochi",
+        runId: "run-" + Date.now(),
+        messages: [{ id: "u1", role: "user", content: "interrupt" }],
+        resume: [{ interruptId, status: "resolved" }]
+      });
+    });
+  </script>
+</body>
+</html>

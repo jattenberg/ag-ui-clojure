@@ -1,5 +1,6 @@
 (ns ag-ui.server.http
-  (:require [org.httpkit.server :as http]
+  (:require [clojure.java.io :as io]
+            [org.httpkit.server :as http]
             [ag-ui.serialization.json :as json]
             [ag-ui.protocol.validate :as validate]
             [ag-ui.server.echo :as echo]
@@ -34,12 +35,25 @@
         (catch Exception e
           (json-error 400 {:error "malformed JSON" :message (.getMessage e)}))))))
 
+(defn- zoo-page []
+  (if-let [page (io/resource "public/index.html")]
+    {:status 200
+     :headers {"Content-Type" "text/html; charset=utf-8"
+               "Cache-Control" "no-cache"}
+     :body (slurp page)}
+    {:status 500
+     :headers {"Content-Type" "text/plain; charset=utf-8"}
+     :body "Mochi Protocol Zoo page missing from classpath"}))
+
 (defn app [request]
   (let [uri (:uri request)
         method (:request-method request)]
     (cond
       (and (= :get method) (= "/health" uri))
       {:status 200 :headers {"Content-Type" "text/plain"} :body "ok"}
+
+      (and (= :get method) (or (= "/" uri) (= "/index.html" uri)))
+      (zoo-page)
 
       (and (= :post method) (or (= "/" uri) (= "/agent" uri)))
       (handle-run request)

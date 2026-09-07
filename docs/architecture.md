@@ -78,6 +78,7 @@ Entry: [`bb.edn`](../bb.edn). Property tests live in `*_properties_test.clj` nam
 
 ## HTTP
 
+- `GET /` or `GET /index.html` → Mochi Protocol Zoo (`resources/public/index.html`).
 - `POST /` or `POST /agent` with `Accept: text/event-stream` → `200` SSE.
 - Missing Accept → `406`.
 - Malformed `RunAgentInput` → `400` and no stream.

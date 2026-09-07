@@ -9,5 +9,6 @@
                  8000)]
     (http/start! {:port port})
     (println (str "AG-UI echo server listening on http://127.0.0.1:" port "/"))
-    (println "POST RunAgentInput with Accept: text/event-stream")
+    (println "GET  /  Mochi Protocol Zoo")
+    (println "POST /  RunAgentInput with Accept: text/event-stream")
     @(promise)))

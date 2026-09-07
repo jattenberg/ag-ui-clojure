@@ -25,7 +25,7 @@ GitHub Actions runs `script/ci.sh` on every push and pull request (`.github/work
 - **State:** text/tool/activity accumulation, JSON Patch, snapshots (`reduce-test`).
 - **Wire:** camelCase round-trip, opaque snapshot keys, SSE framing (`json`, `fields`, `sse`).
 - **Fixtures:** every `fixtures/manifest.json` stream against both profiles.
-- **HTTP:** echo server, malformed input, `406` without `Accept: text/event-stream`, `/health`.
+- **HTTP:** echo server, malformed input, `406` without `Accept: text/event-stream`, `/health`, Mochi Protocol Zoo `GET /`.
 - **Properties (JVM):** generated text runs stay legal; `RUN_STARTED` and `CUSTOM` JSON round-trip.
 
 ## Echo keywords

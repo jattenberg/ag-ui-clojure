@@ -41,6 +41,8 @@ clojure -M:server 8000
 bb server 8000
 ```
 
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) for **Mochi Protocol Zoo**: tap `tool`, `state`, `interrupt`, `error`, `activity`, or `subagent` to stream the matching echo run. `GET /` is HTML from the classpath; `POST /` (or `/agent`) is still SSE.
+
 ```bash
 curl -N -X POST http://127.0.0.1:8000/ \
   -H "Content-Type: application/json" \
